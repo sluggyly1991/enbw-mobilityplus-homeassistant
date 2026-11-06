@@ -1,0 +1,36 @@
+type: markdown
+content: |
+  {% set entity = 'sensor.replace_with_tarifwechsel' %}
+  {% set decision = states(entity) %}
+  {% set current = state_attr(entity, 'current_tariff') %}
+  {% set target = state_attr(entity, 'target_tariff') %}
+  {% set saving = state_attr(entity, 'monthly_savings') %}
+  ## Tarif wechseln: {{ decision if decision in ['Ja', 'Nein'] else 'Prüfen' }}
+  {% if decision in ['Ja', 'Nein'] and saving is number %}
+  {% if decision == 'Ja' %}
+  **{{ 'Downgrade' if state_attr(entity, 'direction') == 'downgrade' else 'Upgrade' }}: {{ current }} → {{ target }}**
+
+  **{{ '%.2f' | format(saving) | replace('.', ',') }} € günstiger pro Monat**
+  {% else %}
+  **Tarif {{ current }} behalten.** Die beste Alternative {{ target }} wäre {{ '%.2f' | format(saving | abs) | replace('.', ',') }} € teurer pro Monat (0 € = gleich teuer).
+  {% endif %}
+
+  | Tarif | Vergleichskosten / Monat |
+  | :--- | ---: |
+  | {{ current }} · aktuell | {{ '%.2f' | format(state_attr(entity, 'current_monthly_cost')) | replace('.', ',') }} € |
+  | {{ target }} · Alternative | {{ '%.2f' | format(state_attr(entity, 'target_monthly_cost')) | replace('.', ',') }} € |
+
+  Basis: Ø **{{ '%.1f' | format(state_attr(entity, 'average_energy')) | replace('.', ',') }} kWh/Monat**, {{ state_attr(entity, 'period_start') }} bis {{ state_attr(entity, 'period_end') }}.
+  {% set threshold = state_attr(entity, 'break_even_kwh') %}
+  {% if threshold is number %}
+  Gegenüber {{ current }} lohnt sich {{ target }} bei **{{ 'mehr' if state_attr(entity, 'threshold_relation') == 'above' else 'weniger' }} als {{ '%.1f' | format(threshold) | replace('.', ',') }} kWh/Monat**.
+  {% endif %}
+  {% else %}
+  Noch keine belastbare Empfehlung. Prüfe die EnBW-Anmeldung, Abrufgrenze und mindestens drei vollständige Monate Historie. Bestätige die Tarifpreise in den Integrationsoptionen mindestens alle 31 Tage.
+
+  Status: {{ state_attr(entity, 'reason') or 'Integration nicht verfügbar' }}.
+  {% endif %}
+
+  Nur deutsche EnBW-Ladepunkte. Grundgebühren eingerechnet; Roaming, identische Blockiergebühren, Guthaben und Sonderaktionen nicht eingerechnet. Verbrauchsvergleich für künftige volle Tarifmonate, keine nachträgliche Erstattung. Kein automatischer Vertragswechsel.
+
+  [Aktuelle EnBW-Tarife prüfen](https://www.enbw.com/elektromobilitaet/produkte/ladetarife) · Preisstand: {{ state_attr(entity, 'prices_checked') or 'unbekannt' }}

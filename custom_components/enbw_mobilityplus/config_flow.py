@@ -5,6 +5,7 @@ from homeassistant.helpers import selector
 
 from .api import Account, AuthenticationError
 from .const import DOMAIN
+from .tariff import DEFAULTS
 
 PASSWORD = selector.TextSelector(
     selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
@@ -84,6 +85,27 @@ class OptionsFlow(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
+                    vol.Required(
+                        "current_tariff",
+                        default=self.config_entry.options.get("current_tariff", "M"),
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=["S", "M", "L"], mode=selector.SelectSelectorMode.DROPDOWN
+                        )
+                    ),
+                    **{
+                        vol.Required(
+                            key, default=self.config_entry.options.get(key, value)
+                        ): vol.All(vol.Coerce(float), vol.Range(min=0, max=200))
+                        for key, value in DEFAULTS.items()
+                        if key.startswith("tariff_") and key != "tariff_prices_checked"
+                    },
+                    vol.Required(
+                        "tariff_prices_checked",
+                        default=self.config_entry.options.get(
+                            "tariff_prices_checked", DEFAULTS["tariff_prices_checked"]
+                        ),
+                    ): selector.DateSelector(),
                     vol.Required(
                         "update_hours", default=self.config_entry.options.get("update_hours", 6)
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=24)),

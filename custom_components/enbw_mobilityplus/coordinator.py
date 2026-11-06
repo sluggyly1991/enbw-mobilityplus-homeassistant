@@ -4,12 +4,14 @@ from datetime import timedelta
 
 from homeassistant.core import callback
 from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
 from .analytics import summarize
 from .api import AuthenticationError
 from .const import DOMAIN
+from .tariff import compare_tariffs
 
 
 class EnBWCoordinator(DataUpdateCoordinator):
@@ -25,6 +27,9 @@ class EnBWCoordinator(DataUpdateCoordinator):
         self.lock = asyncio.Lock()
         self.entry = entry
         self.live = {}
+        self._remove_tariff_clock = async_track_time_change(
+            hass, self._refresh_tariff, hour=0, minute=0, second=5
+        )
         for state in hass.states.async_all("sensor"):
             self._remember_live(state)
         self._remove_live = hass.bus.async_listen("state_changed", self._live_changed)
@@ -75,15 +80,23 @@ class EnBWCoordinator(DataUpdateCoordinator):
             "live_coverage": "historical_evse_only",
         }
 
+    @callback
+    def _refresh_tariff(self, now):
+        if self.data is not None:
+            self.data["tariff"] = compare_tariffs(self.data, dt_util.now(), self.entry.options)
+            self.async_update_listeners()
+
     async def _async_update_data(self):
         history = await self.history(self.entry.options.get("history_limit", 1000))
         return {
             **history,
             **summarize(history, dt_util.now()),
+            "tariff": compare_tariffs(history, dt_util.now(), self.entry.options),
             "updated_at": dt_util.utcnow().isoformat(),
         }
 
     async def close(self):
         self._remove_live()
+        self._remove_tariff_clock()
         async with self.lock:
             await self.hass.async_add_executor_job(self.account.close)

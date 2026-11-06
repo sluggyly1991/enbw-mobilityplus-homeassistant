@@ -32,8 +32,17 @@
         "title": "Charging history options",
         "data": {
           "update_hours": "Update interval (hours)",
-          "history_limit": "Maximum charging sessions"
-        }
+          "history_limit": "Maximum charging sessions",
+          "current_tariff": "Your current tariff",
+          "tariff_s_fee": "S · Monthly fee (EUR)",
+          "tariff_s_price": "S · Charging price (ct/kWh)",
+          "tariff_m_fee": "M · Monthly fee (EUR)",
+          "tariff_m_price": "M · Charging price (ct/kWh)",
+          "tariff_l_fee": "L · Monthly fee (EUR)",
+          "tariff_l_price": "L · Charging price (ct/kWh)",
+          "tariff_prices_checked": "Tariff prices last verified"
+        },
+        "description": "Compares S, M and L using the last three complete months. Verify prices against the EnBW app. Price confirmation expires after 31 days. Never changes your contract."
       }
     }
   }

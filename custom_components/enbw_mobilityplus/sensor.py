@@ -80,6 +80,15 @@ async def async_setup_entry(hass, entry, async_add_entities):
             EnBWSensor(coordinator, entry.entry_id, "history", "Ladehistorie", None, None, "root"),
         ]
     )
+    for key, name, unit, device_class in [
+        ("recommendation", "Tarifwechsel", None, None),
+        ("monthly_savings", "Tarifwechsel Ersparnis", "EUR", SensorDeviceClass.MONETARY),
+        ("break_even_kwh", "Tarifwechsel Wechselgrenze", "kWh", SensorDeviceClass.ENERGY),
+        ("average_energy", "Tarifwechsel Monatsverbrauch", "kWh", SensorDeviceClass.ENERGY),
+    ]:
+        entities.append(
+            EnBWSensor(coordinator, entry.entry_id, key, name, unit, device_class, "tariff")
+        )
     async_add_entities(entities)
     known = set()
 
@@ -111,6 +120,8 @@ class EnBWSensor(CoordinatorEntity, SensorEntity):
             "name": "EnBW mobility+",
             "manufacturer": "EnBW",
         }
+        if scope == "tariff":
+            self._attr_icon = "mdi:calculator-variant"
         if key in ("history", "station_count"):
             self._attr_icon = "mdi:ev-station" if key == "station_count" else "mdi:history"
 
@@ -132,6 +143,8 @@ class EnBWSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         data = self.coordinator.data
+        if self.scope == "tariff":
+            return data["tariff"]
         if self.scope == "latest":
             if not data["sessions"] or self.key != "started_at":
                 return None

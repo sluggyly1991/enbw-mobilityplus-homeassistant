@@ -32,8 +32,17 @@
         "title": "Ladehistorie konfigurieren",
         "data": {
           "update_hours": "Aktualisierung alle … Stunden",
-          "history_limit": "Maximale Anzahl Ladevorgänge"
-        }
+          "history_limit": "Maximale Anzahl Ladevorgänge",
+          "current_tariff": "Dein aktueller Tarif",
+          "tariff_s_fee": "S · Grundgebühr (EUR/Monat)",
+          "tariff_s_price": "S · Ladepreis (ct/kWh)",
+          "tariff_m_fee": "M · Grundgebühr (EUR/Monat)",
+          "tariff_m_price": "M · Ladepreis (ct/kWh)",
+          "tariff_l_fee": "L · Grundgebühr (EUR/Monat)",
+          "tariff_l_price": "L · Ladepreis (ct/kWh)",
+          "tariff_prices_checked": "Tarifpreise zuletzt geprüft"
+        },
+        "description": "Vergleicht S, M und L anhand der letzten drei vollständigen Monate. Preise manuell mit der EnBW-App abgleichen. Nach 31 Tagen wird eine Preisprüfung verlangt. Keine automatische Vertragsänderung."
       }
     }
   }

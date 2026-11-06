@@ -13,6 +13,12 @@ An **unofficial, read-only** Home Assistant integration for your EnBW mobility+ 
 
 This project is a fork of [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), extended with a Home Assistant integration. The Python client source and its MIT attribution remain in this repository; the integration installs the published upstream client as a pinned dependency. Neither project is affiliated with or supported by EnBW. EnBW does not provide an official public account API; changes can break sign-in or data retrieval.
 
+## Tariff comparison (unreleased / main)
+
+Select your current **S, M or L tariff** in the integration options. Upgrade and downgrade comparisons expose a Yes/No decision (German Ja/Nein), best alternative, monthly net saving and break-even kWh. Use the [native dashboard card](examples/tariff-card.yaml), replacing its single sensor placeholder; no additional frontend dependency.
+
+The last three complete calendar months include zero-use months and only German EnBW sessions. Both monthly fees are included. Prices are configurable and are not detected from your account; defaults are regular prices verified on 2026-11-06. After 31 days without price confirmation, or with insufficient history, the decision is **Prüfen** (check). Coverage requires an older session and a non-truncated response; a silently shortened provider archive cannot be detected. No contract is changed. [Calculation details](examples/README.md#tariff-comparison-card-unreleased--main).
+
 ## Features
 
 - UI setup with your EnBW email and password; reauthentication when needed.
