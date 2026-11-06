@@ -1,0 +1,7 @@
+type: custom:enbw-tariff-card
+entity: sensor.replace_with_tarifwechsel
+refresh_entity: button.replace_with_history_refresh
+language: de
+grid_options:
+  columns: 12
+  rows: auto

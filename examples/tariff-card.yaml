@@ -5,6 +5,11 @@ content: |
   {% set current = state_attr(entity, 'current_tariff') %}
   {% set target = state_attr(entity, 'target_tariff') %}
   {% set saving = state_attr(entity, 'monthly_savings') %}
+  {% set next_switch = state_attr(entity, 'next_switch_on') %}
+  {% set locked = state_attr(entity, 'switch_allowed') == false %}
+  {% if locked and decision == 'Ja' %}
+  **Noch nicht wechseln.** Rechnerischer Vorteil ab {{ next_switch }}.
+  {% endif %}
   ## Tarif wechseln: {{ decision if decision in ['Ja', 'Nein'] else 'Prüfen' }}
   {% if decision in ['Ja', 'Nein'] and saving is number %}
   {% if decision == 'Ja' %}
@@ -34,3 +39,5 @@ content: |
   Nur deutsche EnBW-Ladepunkte. Grundgebühren eingerechnet; Roaming, identische Blockiergebühren, Guthaben und Sonderaktionen nicht eingerechnet. Verbrauchsvergleich für künftige volle Tarifmonate, keine nachträgliche Erstattung. Kein automatischer Vertragswechsel.
 
   [Aktuelle EnBW-Tarife prüfen](https://www.enbw.com/elektromobilitaet/produkte/ladetarife) · Preisstand: {{ state_attr(entity, 'prices_checked') or 'unbekannt' }}
+
+  Tarif gültig seit: {{ state_attr(entity, 'tariff_started_on') or 'nicht eingetragen' }}. Nächster Wechsel: {{ next_switch or 'Termin aus EnBW-App eintragen' }}.

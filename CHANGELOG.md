@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add “Switched today”: records tariff and dates in HA only, with editable next-switch date, calendar-month clipping and a waiting state on the card.
+
+- Add a standalone color tariff card with yes/no/check states, combined prices and savings, expandable details, and configure/refresh actions. Includes light/dark themes, German/English copy and input guards.
+- Document resource installation and reusable card configuration in both READMEs.
+
 - Configurable S/M/L tariff comparison, including upgrades and downgrades, using the last three complete calendar months.
 - Native reusable dashboard card: yes/no, best alternative, net monthly savings and break-even volume.
 - Explicit coverage and price-age guards; configurable prices and verification date.

@@ -106,6 +106,15 @@ class OptionsFlow(config_entries.OptionsFlow):
                             "tariff_prices_checked", DEFAULTS["tariff_prices_checked"]
                         ),
                     ): selector.DateSelector(),
+                    **{
+                        vol.Optional(
+                            key,
+                            description={"suggested_value": self.config_entry.options[key]}
+                            if self.config_entry.options.get(key)
+                            else {},
+                        ): selector.DateSelector()
+                        for key in ("tariff_started_on", "tariff_next_switch_on")
+                    },
                     vol.Required(
                         "update_hours", default=self.config_entry.options.get("update_hours", 6)
                     ): vol.All(vol.Coerce(int), vol.Range(min=1, max=24)),

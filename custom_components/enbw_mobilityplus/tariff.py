@@ -1,5 +1,6 @@
 """Conservative tariff comparison using volumes, never historical paid prices."""
 
+from calendar import monthrange
 from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
@@ -14,6 +15,12 @@ DEFAULTS = {
     "tariff_prices_checked": "2026-11-06",
 }
 SOURCE = "https://www.enbw.com/elektromobilitaet/produkte/ladetarife"
+
+
+def next_tariff_date(started):
+    """One calendar month, clipping to the target month's last day."""
+    year, month = started.year + (started.month == 12), started.month % 12 + 1
+    return started.replace(year=year, month=month, day=min(started.day, monthrange(year, month)[1]))
 
 
 def compare_tariffs(history, now, options=None):
@@ -42,6 +49,29 @@ def compare_tariffs(history, now, options=None):
         "prices_checked": settings["tariff_prices_checked"],
         "basis": "three_complete_months_german_enbw_only",
     }
+    try:
+        started = (
+            date.fromisoformat(settings["tariff_started_on"])
+            if settings.get("tariff_started_on")
+            else None
+        )
+        switch_on = (
+            date.fromisoformat(settings["tariff_next_switch_on"])
+            if settings.get("tariff_next_switch_on")
+            else next_tariff_date(started)
+            if started
+            else None
+        )
+        if started and (started > now.date() or switch_on < started):
+            raise ValueError
+        result.update(
+            tariff_started_on=started.isoformat() if started else None,
+            next_switch_on=switch_on.isoformat() if switch_on else None,
+            switch_allowed=now.date() >= switch_on if switch_on else None,
+        )
+    except (ValueError, TypeError):
+        result["reason"] = "invalid_switch_dates"
+        return result
     try:
         checked = date.fromisoformat(settings["tariff_prices_checked"])
         if not 0 <= (now.date() - checked).days <= 31:

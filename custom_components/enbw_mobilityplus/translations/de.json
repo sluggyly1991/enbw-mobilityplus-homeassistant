@@ -40,7 +40,9 @@
           "tariff_m_price": "M · Ladepreis (ct/kWh)",
           "tariff_l_fee": "L · Grundgebühr (EUR/Monat)",
           "tariff_l_price": "L · Ladepreis (ct/kWh)",
-          "tariff_prices_checked": "Tarifpreise zuletzt geprüft"
+          "tariff_prices_checked": "Tarifpreise zuletzt geprüft",
+          "tariff_started_on": "Tarif gültig seit",
+          "tariff_next_switch_on": "Nächster Wechsel möglich ab (Datum aus EnBW-App)"
         },
         "description": "Vergleicht S, M und L anhand der letzten drei vollständigen Monate. Preise manuell mit der EnBW-App abgleichen. Nach 31 Tagen wird eine Preisprüfung verlangt. Keine automatische Vertragsänderung."
       }

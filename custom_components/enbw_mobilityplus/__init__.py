@@ -3,10 +3,12 @@
 import voluptuous as vol
 from homeassistant.core import SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.util import dt as dt_util
 
 from .api import Account
 from .const import DOMAIN
 from .coordinator import EnBWCoordinator
+from .tariff import next_tariff_date
 
 PLATFORMS = ["sensor", "button"]
 
@@ -85,6 +87,43 @@ async def async_setup_entry(hass, entry):
             schema=vol.Schema({vol.Optional("config_entry_id"): str}),
             supports_response=SupportsResponse.ONLY,
         )
+    if not hass.services.has_service(DOMAIN, "record_tariff_change"):
+
+        async def record_tariff_change(call):
+            entries = [
+                e
+                for e in hass.config_entries.async_entries(DOMAIN)
+                if getattr(e, "runtime_data", None) is not None
+            ]
+            entry_id = call.data.get("config_entry_id")
+            if entry_id:
+                entries = [e for e in entries if e.entry_id == entry_id]
+            if len(entries) != 1:
+                raise HomeAssistantError("Bitte genau ein geladenes EnBW-Konto wählen")
+            target = entries[0]
+            today = dt_util.now().date()
+            hass.config_entries.async_update_entry(
+                target,
+                options={
+                    **target.options,
+                    "current_tariff": call.data["tariff"],
+                    "tariff_started_on": today.isoformat(),
+                    "tariff_next_switch_on": next_tariff_date(today).isoformat(),
+                },
+            )
+
+        hass.services.async_register(
+            DOMAIN,
+            "record_tariff_change",
+            record_tariff_change,
+            schema=vol.Schema(
+                {
+                    vol.Required("tariff"): vol.In(["S", "M", "L"]),
+                    vol.Optional("config_entry_id"): str,
+                }
+            ),
+        )
+
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     return True
 
@@ -104,4 +143,5 @@ async def async_unload_entry(hass, entry):
     ):
         hass.services.async_remove(DOMAIN, "get_history")
         hass.services.async_remove(DOMAIN, "get_stations")
+        hass.services.async_remove(DOMAIN, "record_tariff_change")
     return True

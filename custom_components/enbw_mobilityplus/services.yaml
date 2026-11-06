@@ -25,3 +25,22 @@ get_stations:
       selector:
         config_entry:
           integration: enbw_mobilityplus
+
+record_tariff_change:
+  name: Heutigen Tarifwechsel merken
+  description: Speichert den gewählten Tarif und heute als Wechselbeginn nur in HASS. Setzt den nächsten möglichen Wechsel einen Kalendermonat später; in den Optionen korrigierbar. Ändert keinen EnBW-Vertrag.
+  fields:
+    tariff:
+      name: Neuer Tarif
+      required: true
+      selector:
+        select:
+          options:
+            - S
+            - M
+            - L
+    config_entry_id:
+      name: Konto
+      selector:
+        config_entry:
+          integration: enbw_mobilityplus

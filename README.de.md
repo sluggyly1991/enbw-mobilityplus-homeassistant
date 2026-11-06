@@ -8,6 +8,46 @@ Eine **inoffizielle, nur lesende** Integration für Ladehistorie, Kosten, Monats
 
 Dies ist ein Fork von [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), ergänzt um eine HASS-Integration. Der ursprüngliche Client und dessen MIT-Lizenz bleiben erhalten. Die Integration nutzt die veröffentlichte Version 1.0.0 als Abhängigkeit. Keine Verbindung zu EnBW; keine offizielle API oder Unterstützung durch EnBW.
 
+## Farbige Tarifkarte (unveröffentlicht / main)
+
+Eine Karte für den gesamten Tarifcheck: **Grün: Ja, wechseln**, **Blau: Nein, behalten**, **Gelb: Bitte prüfen**. Sie zeigt Upgrade oder Downgrade, monatlichen Preisunterschied inklusive Grundgebühren, beide Tarifpreise, Verbrauch und Wechselgrenze. Berechnungsdetails sind ausklappbar. Tarifauswahl und manuelles Aktualisieren sind direkt erreichbar. Die Karte folgt dem hellen/dunklen HASS-Theme und funktioniert auch in schmalen Dashboard-Spalten.
+
+![Farbzustände der Tarifkarte mit erfundenen Beispieldaten](docs/tariff-card-preview.png)
+
+### Einbauen
+
+Voraussetzung ist die Integration aus `main` mit dem Sensor **Tarifwechsel**; die Erweiterung ist noch nicht Teil des Tags `v0.3.0`.
+
+1. [enbw-tariff-card.js herunterladen](https://raw.githubusercontent.com/sluggyly1991/enbw-mobilityplus-homeassistant/main/www/enbw-tariff-card.js) und als `/config/www/enbw-tariff-card.js` speichern; den Ordner bei Bedarf anlegen.
+2. Unter **Einstellungen → Dashboards → Menü → Ressourcen** `/local/enbw-tariff-card.js?v=20261106-1` als **JavaScript-Modul** hinzufügen. Danach das Dashboard neu laden. Für Kartenupdates die Versionskennung in der Ressourcen-URL ändern.
+3. **Karte hinzufügen → Manuell** öffnen und folgende Konfiguration einfügen. Beide Platzhalter durch die tatsächlichen Entity-IDs deiner Integration ersetzen:
+
+```yaml
+type: custom:enbw-tariff-card
+entity: sensor.replace_with_tarifwechsel
+refresh_entity: button.replace_with_history_refresh
+language: de
+```
+
+`entity` ist der **Tarifwechsel**-Sensor, `refresh_entity` der Button **Historie aktualisieren**. Ohne `refresh_entity` wird die Aktualisieren-Taste ausgeblendet. Optional sind `title` für einen eigenen Titel und `language: en`. Die Karte nutzt vorhandene Berechnungssensoren; sie erkennt deinen Vertrag nicht selbst und ändert keinen Tarif. Keine zusätzlichen HACS-Karten oder externen Bibliotheken nötig; das JavaScript-Modul wird separat registriert und nicht automatisch durch den HACS-Download der Integration installiert.
+
+### „Heute gewechselt“
+
+In der Karte S, M oder L auswählen und **Heute gewechselt** drücken. Das speichert den gewählten Tarif, das heutige Datum und als nächsten Wechseltermin **einen Kalendermonat später** (z. B. 31. Januar → 28./29. Februar). Es wird nur die HASS-Konfiguration geändert, kein Vertrag bei EnBW.
+
+Unter **Konfigurieren** sind **Tarif gültig seit** und **Nächster Wechsel möglich ab** editierbar. Das konkrete Datum aus der EnBW-App hat Vorrang vor dem Vorschlag. Ohne hinterlegte Daten bleibt der Termin unbekannt. Bei einer rechnerischen Ersparnis vor dem nächsten Wechseltermin zeigt die Karte gelb **Noch nicht wechseln** samt Datum; die Ersparnis wird weiterhin berechnet.
+
+Die Aktion ist auch in Automationen verwendbar:
+
+```yaml
+action: enbw_mobilityplus.record_tariff_change
+data:
+  tariff: L
+  # Bei mehreren Konten config_entry_id ergänzen.
+```
+
+[Komplettes Kartenbeispiel](examples/tariff-color-card.yaml) · [Markdown-Alternative ohne JavaScript](examples/tariff-card.yaml)
+
 ## Tarifcheck (unveröffentlicht / main)
 
 Wähle deinen aktuellen **S-, M- oder L-Tarif** unter **Konfigurieren**. Die Integration prüft Upgrade und Downgrade gegen beide anderen Tarife und zeigt **Wechseln: Ja/Nein**, den günstigsten Alternativtarif, monatliche Nettoersparnis und Wechselgrenze. Die [native Dashboard-Karte](examples/tariff-card.yaml) benötigt keine Zusatzinstallation; ihre einzige Sensor-ID ersetzen.

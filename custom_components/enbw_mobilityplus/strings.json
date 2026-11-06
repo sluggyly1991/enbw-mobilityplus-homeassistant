@@ -40,7 +40,9 @@
           "tariff_m_price": "M · Charging price (ct/kWh)",
           "tariff_l_fee": "L · Monthly fee (EUR)",
           "tariff_l_price": "L · Charging price (ct/kWh)",
-          "tariff_prices_checked": "Tariff prices last verified"
+          "tariff_prices_checked": "Tariff prices last verified",
+          "tariff_started_on": "Tariff effective since",
+          "tariff_next_switch_on": "Next switch available on (date from EnBW app)"
         },
         "description": "Compares S, M and L using the last three complete months. Verify prices against the EnBW app. Price confirmation expires after 31 days. Never changes your contract."
       }

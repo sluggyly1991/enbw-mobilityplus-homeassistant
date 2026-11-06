@@ -117,3 +117,38 @@ class TariffTest(unittest.TestCase):
         self.assertEqual(r["average_energy"], 10)
         self.assertEqual(r["current_month_energy"], 300)
         self.assertEqual(r["period_start"], "2025-10-01")
+
+
+class TariffDatesTest(unittest.TestCase):
+    def test_calendar_month_clipping(self):
+        from datetime import date
+
+        for start, end in [
+            ("2026-11-06", "2026-12-06"),
+            ("2026-01-31", "2026-02-28"),
+            ("2028-01-31", "2028-02-29"),
+            ("2026-12-31", "2027-01-31"),
+        ]:
+            self.assertEqual(t.next_tariff_date(date.fromisoformat(start)).isoformat(), end)
+
+    def test_locked_saving_still_calculated(self):
+        r = TariffTest().compare(160, {"tariff_started_on": "2026-11-06"})
+        self.assertFalse(r["switch_allowed"])
+        self.assertEqual(r["next_switch_on"], "2026-12-06")
+        self.assertEqual(r["recommendation"], "Ja")
+        self.assertEqual(r["monthly_savings"], 5.2)
+
+    def test_explicit_app_date_and_unlock(self):
+        r = TariffTest().compare(
+            160, {"tariff_started_on": "2026-10-01", "tariff_next_switch_on": "2026-11-06"}
+        )
+        self.assertTrue(r["switch_allowed"])
+        self.assertIsNone(TariffTest().compare(160)["switch_allowed"])
+
+    def test_invalid_dates(self):
+        for options in (
+            {"tariff_started_on": "bad"},
+            {"tariff_started_on": "2026-12-01"},
+            {"tariff_started_on": "2026-11-01", "tariff_next_switch_on": "2026-10-01"},
+        ):
+            self.assertEqual(TariffTest().compare(160, options)["reason"], "invalid_switch_dates")

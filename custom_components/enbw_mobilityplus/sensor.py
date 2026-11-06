@@ -144,7 +144,7 @@ class EnBWSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self):
         data = self.coordinator.data
         if self.scope == "tariff":
-            return data["tariff"]
+            return {**data["tariff"], "config_entry_id": self.coordinator.entry.entry_id}
         if self.scope == "latest":
             if not data["sessions"] or self.key != "started_at":
                 return None

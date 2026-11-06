@@ -2,6 +2,10 @@
 
 These examples use placeholder entity IDs. Replace every ID with one from your account device before adding a card through the dashboard editor's YAML mode. Do not paste them into `configuration.yaml`. Existing areas and language settings may produce different entity IDs.
 
+## Color tariff card (unreleased / main)
+
+See the [README installation steps](../README.md#color-tariff-card-unreleased--main). After registering the local module, use [tariff-color-card.yaml](tariff-color-card.yaml) and replace its two entity IDs. All information and actions are contained in this one card. Its decision uses color **and text/icons**: green switch, blue stay, amber check. The plain Markdown alternative remains available below.
+
 ## Monthly overview
 
 ```yaml

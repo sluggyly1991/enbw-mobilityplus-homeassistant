@@ -13,6 +13,46 @@ An **unofficial, read-only** Home Assistant integration for your EnBW mobility+ 
 
 This project is a fork of [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), extended with a Home Assistant integration. The Python client source and its MIT attribution remain in this repository; the integration installs the published upstream client as a pinned dependency. Neither project is affiliated with or supported by EnBW. EnBW does not provide an official public account API; changes can break sign-in or data retrieval.
 
+## Color tariff card (unreleased / main)
+
+One card combines the decision, upgrade/downgrade, monthly price difference including base fees, both tariff costs, average usage and break-even volume. **Green = switch, blue = stay, amber = check data/prices**. Calculation details expand on demand. Configure your tariff and refresh history from the card. It follows HA light/dark mode and fits narrow dashboard columns.
+
+![Tariff card states with fictional example data](docs/tariff-card-preview.png)
+
+### Install the card
+
+Requires the integration from `main` with its **Tarifwechsel** decision sensor. These additions are not included in the existing `v0.3.0` tag.
+
+1. [Download enbw-tariff-card.js](https://raw.githubusercontent.com/sluggyly1991/enbw-mobilityplus-homeassistant/main/www/enbw-tariff-card.js) to `/config/www/enbw-tariff-card.js` (create `www` if needed).
+2. Under **Settings → Dashboards → menu → Resources**, register `/local/enbw-tariff-card.js?v=20261106-1` as a **JavaScript module**, then reload the dashboard. Change the resource URL version when updating the card.
+3. Use **Add card → Manual**, replacing both entity placeholders with IDs from your integration:
+
+```yaml
+type: custom:enbw-tariff-card
+entity: sensor.replace_with_tarifwechsel
+refresh_entity: button.replace_with_history_refresh
+language: en
+```
+
+`entity` is the **Tarifwechsel** decision sensor; `refresh_entity` is the **Historie aktualisieren** button. Omit `refresh_entity` to hide refresh. Optional: `title` and `language: de`/`en` (defaults to your HA language). No extra HACS card dependencies or external libraries. The module is registered separately; downloading the integration through HACS does not automatically install this frontend resource. It uses the configured comparison, never detects or changes your contract.
+
+### “Switched today”
+
+Choose S, M or L in the card and press **Switched today**. It records that tariff, today's local HA date and a proposed next switch date **one calendar month later**, clipped at month end (January 31 → February 28/29). This changes HA configuration only, never your EnBW contract.
+
+The integration options expose **Tariff effective since** and **Next switch available on**. The actual date in the EnBW app overrides the proposal. Missing dates remain unknown. If an alternative is cheaper but the date has not arrived, the card shows amber **Wait before switching** and the date, while still calculating the potential saving.
+
+The action is also available to automations:
+
+```yaml
+action: enbw_mobilityplus.record_tariff_change
+data:
+  tariff: L
+  # Add config_entry_id when multiple accounts are configured.
+```
+
+[Full configuration example](examples/tariff-color-card.yaml) · [Native Markdown alternative](examples/tariff-card.yaml)
+
 ## Tariff comparison (unreleased / main)
 
 Select your current **S, M or L tariff** in the integration options. Upgrade and downgrade comparisons expose a Yes/No decision (German Ja/Nein), best alternative, monthly net saving and break-even kWh. Use the [native dashboard card](examples/tariff-card.yaml), replacing its single sensor placeholder; no additional frontend dependency.
