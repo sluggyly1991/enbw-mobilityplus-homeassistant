@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Upstream Python client
+    url: https://github.com/mawiak/enbw-mobilityplus-client/issues
+    about: Authentication and upstream API compatibility.

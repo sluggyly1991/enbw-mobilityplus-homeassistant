@@ -1,210 +1,130 @@
-# EnBW mobility+ Client
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-sluggyly1991-FFDD00?logo=buymeacoffee&logoColor=000)](https://www.buymeacoffee.com/sluggyly1991)
 
-> ⚠️ **IMPORTANT DISCLAIMER**: This is an **unofficial, reverse-engineered** client library for the EnBW mobility+ API. EnBW does not provide a public API, so this library was created by analyzing the official mobile app's network traffic. Use at your own risk and responsibility.
+# EnBW mobility+ History for Home Assistant
 
-Python client library for the EnBW mobility+ API, allowing you to programmatically access your charging history and account information.
+[![Validate](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/actions/workflows/validate.yml/badge.svg)](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/actions/workflows/validate.yml)
+[![Tests](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/actions/workflows/tests.yml/badge.svg)](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/actions/workflows/tests.yml)
+[![Release](https://img.shields.io/github/v/release/sluggyly1991/enbw-mobilityplus-homeassistant)](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+An **unofficial, read-only** Home Assistant integration for your EnBW mobility+ charging history. See charging costs and energy, compare months, map visited stations and link historical charging points to existing live availability sensors.
+
+[Deutsche Anleitung](README.de.md) · [Installation](#installation) · [Releases](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/releases) · [Report a bug](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/issues/new/choose) · [HACS readiness](docs/HACS.md)
+
+This project is a fork of [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), extended with a Home Assistant integration. The Python client source and its MIT attribution remain in this repository; the integration installs the published upstream client as a pinned dependency. Neither project is affiliated with or supported by EnBW. EnBW does not provide an official public account API; changes can break sign-in or data retrieval.
 
 ## Features
 
-- 🔐 OAuth2 PKCE authentication flow
-- 📊 Fetch charging history with detailed session information
-- 👤 Access user profile and account information
-- 🐍 Modern Python 3.11+ with full type hints
-- 🔄 Automatic token refresh handling
-- 🍪 Session management with proper cookie handling
+- UI setup with your EnBW email and password; reauthentication when needed.
+- Latest charge: energy, cost, start, duration, operator, address, connector, nominal price, blocking fee, discount and calculated average power.
+- Current month, previous month, current year and captured-history totals: energy, cost, session count and energy-weighted effective price.
+- Visited stations grouped by address and operator, with map coordinates and per-station totals.
+- **Live availability linking:** exact EVSE IDs connect visited charging points to compatible sensors already installed in Home Assistant. Availability changes update the linked station without fetching the history again.
+- Manual refresh button; configurable refresh interval (1–24 hours, default 6) and history limit (25–10,000, default 1,000).
+- Response actions for history and visited stations; count-only privacy-preserving diagnostics.
+- German and English setup/options translations.
+
+## Requirements
+
+- Home Assistant **2026.3.0 or newer**. Version 0.2.0 was tested on 2026.9.1; CI validates the release separately.
+- An EnBW mobility+ account with a login supported by the upstream client. CAPTCHA, MFA and third-party sign-in are not implemented.
+- Internet access for the EnBW API and installation of `enbw-mobilityplus-client==1.0.0`.
+- A compatible availability integration is **optional**. History and station totals work independently.
 
 ## Installation
 
-```bash
-pip install enbw-mobilityplus-client
+### HACS custom repository
+
+Until the repository is accepted into the HACS default catalog, add it as a custom repository:
+
+1. Open **HACS → menu → Custom repositories**.
+2. Add `https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant` with category **Integration**.
+3. Download **EnBW mobility+ History** and restart Home Assistant.
+4. Open **Settings → Devices & services → Add integration → EnBW mobility+**.
+5. Enter your EnBW email and password.
+
+No `configuration.yaml` changes are required. On Home Assistant versions with a built-in Marketplace, use its equivalent custom repository interface.
+
+### Manual
+
+Copy `custom_components/enbw_mobilityplus/` to `/config/custom_components/enbw_mobilityplus/`, restart, then add the integration as above. Back up an existing folder before replacing it. HACS can take over an existing manual installation using the same domain; **keep the existing config entry** to preserve entity unique IDs.
+
+## Entities and dashboard
+
+Entities belong to one EnBW account device. Home Assistant generates the actual entity IDs from your language, device, area and naming preferences. **Do not assume the IDs in examples match your installation.** The four sensors from 0.1/0.2 keep their unique IDs.
+
+| Group | Values |
+| --- | --- |
+| Latest charge | kWh, EUR, timestamp, seconds, nominal ct/kWh, operator, address, connector, fee, discount, average kW |
+| Month / previous month / year / captured history | kWh, EUR, number of charges, effective EUR/kWh |
+| History | Number of captured sessions; latest 50 sessions and monthly totals as current attributes |
+| Stations | Number of visited stations; one map-ready sensor per visited station with historical totals and matched live points |
+| Refresh | Button and timestamp of the last successful history fetch |
+
+See [dashboard examples](examples/README.md) to build a native dashboard without third-party cards. Examples contain placeholders only. Installing the integration does not change your dashboards or add a dashboard automatically.
+
+### How live linking works
+
+A compatible sensor must expose `evse_id` and an `options` attribute containing `AVAILABLE`. The station sensor links those whose EVSE ID appears in its history. `monitored_charge_points` and `available_charge_points` refer only to these **matched points**. They are not the total capacity of the station. A station without matched sensors has **no live coverage**, not a confirmed zero free chargers. Sensor entity IDs may be renamed without breaking EVSE-based matching.
+
+Your existing station integration remains responsible for station discovery and its update interval. This integration does not duplicate its API polling or automatically configure new public stations.
+
+### Meaning of totals
+
+All periods use the **session start in Home Assistant's timezone**. Effective price is total cost divided by energy, not the mean of advertised prices. Average power is energy divided by session duration, not real-time charging power.
+
+Totals cover **only the fetched history**. `history_limit_reached: true` signals possible truncation; increase the limit in the integration options. Provider-side retention can also limit availability. History attributes contain the latest 50 sessions; the full requested history is available through the action below. Large lists are excluded from Recorder; this is not a permanent archive or retrospective Recorder import.
+
+These are discrete public charging sessions and period summaries, not a cumulative meter suitable for the Home Assistant Energy dashboard. Historic sessions and running totals may change if the provider corrects billing.
+
+## Actions
+
+In **Tools → Actions** (Developer Tools on older versions), run:
+
+```yaml
+action: enbw_mobilityplus.get_history
+data:
+  limit: 1000
 ```
 
-## Quick Start
+Returns `sessions` and `limit_reached`. Limits are 1–10,000. With multiple accounts, select the account using the `config_entry_id` field. This action fetches fresh data but does not replace the coordinator's configured history window or the sensor cache.
 
-```python
-from enbw_mobilityplus_client import EnBWMobilityPlusClient
-
-# Initialize the client
-client = EnBWMobilityPlusClient()
-
-# Login with your EnBW mobility+ credentials
-client.login("your-email@example.com", "your-password")
-
-# Get your charging history
-history = client.get_charging_history(limit=10)
-
-for session in history:
-    print(f"{session.started_at}: {session.energy_in_kwh} kWh at {session.address}")
-
-# Get user profiles
-profiles = client.get_profiles()
-print(f"Account ID: {profiles[0].charging_account_id}")
-
-# Close the client when done
-client.close()
+```yaml
+action: enbw_mobilityplus.get_stations
 ```
 
-Or use it as a context manager:
+Returns cached station totals, matched live points and the history-limit flag. The optional `config_entry_id` selects an account. Both actions return response data; scripts must capture it using `response_variable`.
 
-```python
-with EnBWMobilityPlusClient() as client:
-    client.login("your-email@example.com", "your-password")
-    history = client.get_charging_history()
-```
+Use the **History refresh** button to update the sensors and cached history. Set the refresh interval and limit under the integration's **Configure** menu.
 
-## API Coverage
+## Privacy and security
 
-Currently implemented endpoints:
+- Credentials are saved in Home Assistant config entries and may be included in backups. Tokens exist only in memory.
+- History and action responses contain sensitive travel locations, identifiers and billing data. Do not paste unredacted exports into issues.
+- The integration suppresses upstream exception bodies, which can contain tokens or authentication URLs. Avoid enabling HTTP debug logging when reporting issues.
+- Diagnostics expose only counts, limits, intervals and update status. They omit credentials, profile IDs, EVSE IDs, addresses and coordinates.
+- No telemetry or analytics are sent by this integration. Authentication/history requests go to the EnBW services used by the upstream client.
 
-- ✅ OAuth2 PKCE Authentication Flow
-- ✅ Token Refresh
-- ✅ User Profiles (`/api/v1/profiles`)
-- ✅ Charging History (`/emobility-complete/api/v2/charginghistory`)
-- ⏳ Charging Stations / Map Search (planned)
-- ⏳ Real-time charging session status (planned)
-- ⏳ Tariff information (planned)
+See [SECURITY.md](SECURITY.md) for responsible reporting.
 
-## Development
+## Troubleshooting
 
-### Setup
+- **Cannot sign in:** verify the account in the official app; CAPTCHA/MFA may require changes in the upstream client.
+- **Reauthentication requested:** follow the Home Assistant reauthentication flow. Never delete a working account entry merely to refresh a token.
+- **Unavailable after a connection error:** check connectivity and try the refresh button after the API recovers.
+- **Incomplete totals:** inspect `history_limit_reached` and the provider's available history.
+- **No station availability:** verify matching `evse_id` attributes and a compatible existing availability sensor. A historical station alone cannot provide live status.
+- **Several profiles:** the upstream client currently selects the first profile. Profile selection is not implemented.
 
-```bash
-# Clone the repository
-git clone https://github.com/mawiak/enbw-mobilityplus-client.git
-cd enbw-mobilityplus-client
+To remove: delete the integration under Devices & services, then uninstall through HACS (or remove its custom component folder) and restart. This removes the connection; it does not delete your EnBW account.
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+## Development and contribution
 
-# Install development dependencies
-pip install -r requirements-dev.txt
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md). HACS validation, hassfest, linting and automated offline tests run in GitHub Actions. CI never needs real EnBW credentials. Releases are created only after checks pass. Being installable through HACS does **not** mean the HACS team has accepted this project into the default catalog.
 
-### Code Quality
+## Credits and license
 
-This project uses:
-- **Black** for code formatting
-- **isort** for import sorting
-- **Flake8** for linting
-- **pytest** for testing
-
-Run checks:
-```bash
-black src/
-isort src/
-flake8 src/
-pytest
-```
-
-### Commit Convention
-
-This project follows [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `docs:` - Documentation changes
-- `chore:` - Maintenance tasks
-- `test:` - Test changes
-
-Example: `feat: add charging session retrieval method`
-
-### Release Process
-
-Releases are automated using semantic-release:
-1. Push commits to `main` following conventional commit format
-2. GitHub Actions automatically:
-   - Determines version bump (major/minor/patch)
-   - Updates CHANGELOG.md
-   - Creates GitHub release
-   - Publishes to PyPI
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes using conventional commits
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## ⚠️ Legal Disclaimer & Terms of Use
-
-**READ CAREFULLY BEFORE USING THIS LIBRARY**
-
-### Reverse Engineering Notice
-
-This library was created by **reverse-engineering** the EnBW mobility+ mobile application's network traffic, as **EnBW does not provide an official public API**. The implementation is based on analyzing HTTP requests and responses between the official app and EnBW's backend services.
-
-### No Affiliation
-
-This project is **NOT**:
-- Affiliated with, endorsed by, or supported by EnBW Energie Baden-Württemberg AG
-- An official EnBW product or service
-- Guaranteed to work or be maintained
-
-### No Warranty & Liability
-
-This software is provided **"AS IS"**, without warranty of any kind, express or implied, including but not limited to:
-- Warranties of merchantability
-- Fitness for a particular purpose
-- Non-infringement
-
-**The authors and contributors:**
-- Accept **NO liability** for any damages, data loss, or issues arising from use of this library
-- Are **NOT responsible** for any violations of EnBW's Terms of Service
-- Provide **NO guarantee** that this library will continue to work (EnBW may change their API at any time)
-
-### Responsible Use
-
-By using this library, you agree to:
-
-✅ **DO:**
-- Use it only with your own EnBW mobility+ account
-- Respect EnBW's infrastructure and rate limits
-- Use it for personal, non-commercial purposes
-- Keep your credentials secure
-- Comply with all applicable laws and regulations
-
-❌ **DON'T:**
-- Use it for unauthorized access to other accounts
-- Abuse or overload EnBW's API infrastructure
-- Use it for commercial purposes without authorization
-- Scrape or collect data at scale
-- Violate EnBW's Terms of Service
-- Use it for any malicious or illegal activities
-
-### Terms of Service
-
-Using this library to access EnBW's services means you are subject to [EnBW mobility+ Terms of Service](https://www.enbw.com). **You are solely responsible** for ensuring your use complies with these terms.
-
-### API Changes
-
-EnBW may change, break, or restrict their API at any time without notice. This library may stop working without warning, and the maintainers are under no obligation to update it.
-
-### Your Responsibility
-
-**YOU** are responsible for:
-- Any consequences of using this library
-- Ensuring compliance with EnBW's Terms of Service
-- Protecting your account credentials
-- Any damages or issues that arise from your use
-
-### Summary
-
-**Use this library at your own risk and responsibility. The authors provide this tool for educational and personal use only, with no guarantees or support.**
-
-## Support
-
-If you encounter any issues or have questions:
-- Open an issue on [GitHub](https://github.com/mawiak/enbw-mobilityplus-client/issues)
-- Check the [documentation](https://github.com/mawiak/enbw-mobilityplus-client)
-
-## Acknowledgments
-
-Inspired by the [elli-client](https://github.com/mawiak/elli-client) project.
+- Original client: [Marc Szymkowiak / mawiak](https://github.com/mawiak/enbw-mobilityplus-client), MIT.
+- Home Assistant integration and HACS packaging: [sluggyly1991](https://github.com/sluggyly1991).
+- [Original client documentation](docs/UPSTREAM_CLIENT.md).
+- [MIT license](LICENSE). EnBW and mobility+ are trademarks of their respective owners. The included charging icon identifies this community project and is not an official EnBW logo.

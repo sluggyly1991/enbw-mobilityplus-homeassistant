@@ -1,0 +1,27 @@
+get_history:
+  name: Ladehistorie abrufen
+  description: Ruft die jüngsten Ladevorgänge seitenweise ab. Die Antwort enthält sessions und limit_reached.
+  fields:
+    config_entry_id:
+      name: Konto
+      selector:
+        config_entry:
+          integration: enbw_mobilityplus
+    limit:
+      name: Maximale Anzahl
+      default: 1000
+      selector:
+        number:
+          min: 1
+          max: 10000
+          mode: box
+
+get_stations:
+  name: Besuchte Stationen abrufen
+  description: Liefert Stationen mit Summen und passenden Live-Ladepunkten der vorhandenen Stationsintegration.
+  fields:
+    config_entry_id:
+      name: Konto
+      selector:
+        config_entry:
+          integration: enbw_mobilityplus

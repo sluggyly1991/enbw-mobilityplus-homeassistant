@@ -1,0 +1,40 @@
+{
+  "title": "EnBW mobility+",
+  "config": {
+    "step": {
+      "user": {
+        "title": "EnBW mobility+",
+        "description": "Mit deinem EnBW-Konto anmelden.",
+        "data": {
+          "email": "E-Mail",
+          "password": "Passwort"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Anmeldung erneuern",
+        "data": {
+          "password": "Passwort"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Anmeldung oder Abruf fehlgeschlagen. Zugangsdaten und Verbindung prüfen; der inoffizielle Client unterstützt möglicherweise den aktuellen Login nicht.",
+      "invalid_auth": "Anmeldung fehlgeschlagen. Prüfe deine EnBW-Zugangsdaten. Der inoffizielle Client unterstützt möglicherweise kein CAPTCHA oder MFA."
+    },
+    "abort": {
+      "already_configured": "Konto bereits eingerichtet.",
+      "reauth_successful": "Anmeldung aktualisiert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ladehistorie konfigurieren",
+        "data": {
+          "update_hours": "Aktualisierung alle … Stunden",
+          "history_limit": "Maximale Anzahl Ladevorgänge"
+        }
+      }
+    }
+  }
+}

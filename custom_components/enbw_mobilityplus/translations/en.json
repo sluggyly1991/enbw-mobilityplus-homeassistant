@@ -1,0 +1,40 @@
+{
+  "title": "EnBW mobility+",
+  "config": {
+    "step": {
+      "user": {
+        "title": "EnBW mobility+",
+        "description": "Sign in with your EnBW account.",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Sign in again",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Login or request failed. Check credentials and connection; the unofficial client may not support the current login.",
+      "invalid_auth": "Authentication failed. Check your EnBW credentials. The unofficial client may not support CAPTCHA or MFA."
+    },
+    "abort": {
+      "already_configured": "Account already configured.",
+      "reauth_successful": "Sign-in updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Charging history options",
+        "data": {
+          "update_hours": "Update interval (hours)",
+          "history_limit": "Maximum charging sessions"
+        }
+      }
+    }
+  }
+}

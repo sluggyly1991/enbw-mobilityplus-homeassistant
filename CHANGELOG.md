@@ -1,34 +1,27 @@
-# 1.0.0 (2026-07-15)
-
-
-### Bug Fixes
-
-* expose release outputs and use PyPI trusted publishing ([7da964d](https://github.com/mawiak/enbw-mobilityplus-client/commit/7da964d331f61776a10d4ff2a10faf19088da4cc))
-
-
-### Features
-
-* initial implementation of EnBW mobility+ API client ([5ca8c1a](https://github.com/mawiak/enbw-mobilityplus-client/commit/5ca8c1a3fcc674db90ed82ddb06cc29f0c31ea7d))
-
-# 1.0.0 (2026-07-14)
-
-
-### Features
-
-* initial implementation of EnBW mobility+ API client ([5ca8c1a](https://github.com/mawiak/enbw-mobilityplus-client/commit/5ca8c1a3fcc674db90ed82ddb06cc29f0c31ea7d))
-
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## 0.3.0
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+First public Home Assistant release, prepared for HACS custom-repository installation and default-catalog review.
 
-## [Unreleased]
+- Preserves upstream client history and MIT attribution; adds Home Assistant integration ownership and repository links.
+- HACS manifest, local brand assets, HACS/hassfest workflows and offline tests on Python 3.12–3.14.
+- English/German installation, privacy, troubleshooting, dashboard and contributor documentation.
+- Buy Me a Coffee support link for sluggyly1991.
+- Count-only diagnostics; separate authentication errors in the setup form; cleanup after platform setup failures.
+- Retains entity unique IDs from the locally tested 0.2.0 integration.
 
-### Added
-- Initial project structure
-- Basic client skeleton
-- GitHub Actions for CI/CD
-- Semantic release configuration
-- Commitlint for conventional commits
+## 0.2.0
+
+- Month, previous month, year and captured-history totals.
+- Latest charging details and calculated average power.
+- Map-ready visited stations grouped by address/operator.
+- Exact EVSE-ID matching to existing live availability sensors.
+- Configurable update interval and history limit; manual refresh button.
+- History/station response actions and recent-session attributes excluded from Recorder.
+
+## 0.1.0
+
+- Initial Home Assistant config flow, coordinator and latest-charge sensors.
+
+The original client's changelog remains in the upstream Git history. Its package version and integration release versions are independent.

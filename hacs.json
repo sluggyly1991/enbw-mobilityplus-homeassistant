@@ -1,0 +1,9 @@
+{
+  "name": "EnBW mobility+ History",
+  "homeassistant": "2026.3.0",
+  "country": [
+    "DE",
+    "AT",
+    "CH"
+  ]
+}

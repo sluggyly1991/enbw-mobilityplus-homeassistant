@@ -72,3 +72,20 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
+
+# Home Assistant configuration and local exports
+.storage/
+secrets.yaml
+configuration.yaml
+home-assistant.log*
+ladehistorie*.json
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+.DS_Store
+._*
