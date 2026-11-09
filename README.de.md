@@ -8,7 +8,35 @@ Eine **inoffizielle, nur lesende** Integration für Ladehistorie, Kosten, Monats
 
 Dies ist ein Fork von [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), ergänzt um eine HASS-Integration. Der ursprüngliche Client und dessen MIT-Lizenz bleiben erhalten. Die Integration nutzt die veröffentlichte Version 1.0.0 als Abhängigkeit. Keine Verbindung zu EnBW; keine offizielle API oder Unterstützung durch EnBW.
 
-## Farbige Tarifkarte (unveröffentlicht / main)
+## Installation mit HACS
+
+**EnBW mobility+ History ist seit [9. November 2026 im HACS-Standardkatalog](https://github.com/hacs/default/pull/13490).** Für die normale Installation ist kein benutzerdefiniertes Repository nötig.
+
+Voraussetzung: Home Assistant **2026.3.0 oder neuer**, Internetzugang und ein unterstützter EnBW-Login.
+
+1. **HACS** öffnen und nach **EnBW mobility+ History** oder **EnBW** suchen.
+2. Die Integration auswählen, den neuesten Release herunterladen und HASS neu starten.
+3. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen → EnBW mobility+** anmelden.
+
+Falls der Eintrag noch fehlt, den HACS-Katalog aktualisieren und erneut suchen. Neu aufgenommene Einträge können etwas Zeit benötigen, bis sie lokal erscheinen. In HASS-Versionen mit integriertem Marketplace dessen entsprechende Suche verwenden. Keine Änderungen an `configuration.yaml` nötig.
+
+### Benutzerdefiniertes Repository (Ausweichweg)
+
+Nur wenn das Projekt weiterhin nicht in der HACS-Suche erscheint:
+
+1. In **HACS → Menü → Benutzerdefinierte Repositories** `https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant` als **Integration** hinzufügen.
+2. Nach **EnBW mobility+ History** suchen, herunterladen und HASS neu starten.
+3. Die Integration wie oben beschrieben hinzufügen.
+
+### Vorhandene Installation aktualisieren
+
+Das Update in HACS herunterladen und HASS neu starten. **Den bestehenden Integrationseintrag behalten**, damit Kontoeinstellungen und Sensor-IDs erhalten bleiben. Die Farbkarte ist ein separates Frontend-Modul: nach der [Kartenanleitung](#farbige-tarifkarte) aktualisieren, die Versionskennung ihrer Ressourcen-URL ändern und das Dashboard neu laden. HACS-Updates der Integration installieren oder aktualisieren diese Kartendatei nicht automatisch.
+
+### Manuelle Installation
+
+Alternativ `custom_components/enbw_mobilityplus` nach `/config/custom_components/` kopieren, neu starten und wie oben anmelden. Bei einer bestehenden manuellen Installation den Ordner vorher sichern und den Integrationseintrag behalten.
+
+## Farbige Tarifkarte
 
 Eine Karte für den gesamten Tarifcheck: **Grün: Ja, wechseln**, **Blau: Nein, behalten**, **Gelb: Bitte prüfen**. Sie zeigt Upgrade oder Downgrade, monatlichen Preisunterschied inklusive Grundgebühren, beide Tarifpreise, Verbrauch und Wechselgrenze. Berechnungsdetails sind ausklappbar. Tarifauswahl und manuelles Aktualisieren sind direkt erreichbar. Die Karte folgt dem hellen/dunklen HASS-Theme und funktioniert auch in schmalen Dashboard-Spalten.
 
@@ -16,10 +44,10 @@ Eine Karte für den gesamten Tarifcheck: **Grün: Ja, wechseln**, **Blau: Nein, 
 
 ### Einbauen
 
-Voraussetzung ist die Integration aus `main` mit dem Sensor **Tarifwechsel**; die Erweiterung ist noch nicht Teil des Tags `v0.3.0`.
+Voraussetzung ist die Integration **ab v0.4.0** mit dem Sensor **Tarifwechsel**.
 
-1. [enbw-tariff-card.js herunterladen](https://raw.githubusercontent.com/sluggyly1991/enbw-mobilityplus-homeassistant/main/www/enbw-tariff-card.js) und als `/config/www/enbw-tariff-card.js` speichern; den Ordner bei Bedarf anlegen.
-2. Unter **Einstellungen → Dashboards → Menü → Ressourcen** `/local/enbw-tariff-card.js?v=20261106-1` als **JavaScript-Modul** hinzufügen. Danach das Dashboard neu laden. Für Kartenupdates die Versionskennung in der Ressourcen-URL ändern.
+1. [enbw-tariff-card.js herunterladen](https://raw.githubusercontent.com/sluggyly1991/enbw-mobilityplus-homeassistant/v0.4.0/www/enbw-tariff-card.js) und als `/config/www/enbw-tariff-card.js` speichern; den Ordner bei Bedarf anlegen.
+2. Unter **Einstellungen → Dashboards → Menü → Ressourcen** `/local/enbw-tariff-card.js?v=0.4.0` als **JavaScript-Modul** hinzufügen. Danach das Dashboard neu laden. Für Kartenupdates die Versionskennung in der Ressourcen-URL ändern.
 3. **Karte hinzufügen → Manuell** öffnen und folgende Konfiguration einfügen. Beide Platzhalter durch die tatsächlichen Entity-IDs deiner Integration ersetzen:
 
 ```yaml
@@ -48,23 +76,12 @@ data:
 
 [Komplettes Kartenbeispiel](examples/tariff-color-card.yaml) · [Markdown-Alternative ohne JavaScript](examples/tariff-card.yaml)
 
-## Tarifcheck (unveröffentlicht / main)
+## Tarifcheck
 
 Wähle deinen aktuellen **S-, M- oder L-Tarif** unter **Konfigurieren**. Die Integration prüft Upgrade und Downgrade gegen beide anderen Tarife und zeigt **Wechseln: Ja/Nein**, den günstigsten Alternativtarif, monatliche Nettoersparnis und Wechselgrenze. Die [native Dashboard-Karte](examples/tariff-card.yaml) benötigt keine Zusatzinstallation; ihre einzige Sensor-ID ersetzen.
 
-Basis sind die letzten drei vollständigen Monate inklusive Nullmonaten und nur deutsche EnBW-Ladepunkte. Grundgebühren sind berücksichtigt. Preise werden manuell konfiguriert, nicht aus dem Konto erkannt; Vorgaben entsprechen den regulären Preisen vom 06.11.2026. Nach 31 Tagen ohne Preisbestätigung oder bei unvollständiger Historie lautet die Anzeige **Prüfen**. Ein vorhandener Datensatz vor dem Zeitraum ist eine konservative Abdeckungsprüfung; eine von EnBW still gekürzte Historie kann nicht erkannt werden. Es erfolgt kein automatischer Vertragswechsel. [Details und Kartenbeispiel](examples/README.md#tariff-comparison-card-unreleased--main).
+Basis sind die letzten drei vollständigen Monate inklusive Nullmonaten und nur deutsche EnBW-Ladepunkte. Grundgebühren sind berücksichtigt. Preise werden manuell konfiguriert, nicht aus dem Konto erkannt; Vorgaben entsprechen den regulären Preisen vom 06.11.2026. Nach 31 Tagen ohne Preisbestätigung oder bei unvollständiger Historie lautet die Anzeige **Prüfen**. Ein vorhandener Datensatz vor dem Zeitraum ist eine konservative Abdeckungsprüfung; eine von EnBW still gekürzte Historie kann nicht erkannt werden. Es erfolgt kein automatischer Vertragswechsel. [Details und Kartenbeispiel](examples/README.md#tariff-comparison-card).
 
-## Installation mit HACS
-
-Voraussetzung: Home Assistant **2026.3.0 oder neuer**, Internetzugang und ein unterstützter EnBW-Login. Die Anbindung wurde in Version 0.2.0 mit Home Assistant 2026.9.1 und echten Kontodaten geprüft. Die Prüfungen dieser Veröffentlichung laufen getrennt in GitHub Actions.
-
-1. In **HACS → Menü → Benutzerdefinierte Repositories** `https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant` als **Integration** hinzufügen.
-2. **EnBW mobility+ History** herunterladen und HASS neu starten.
-3. Unter **Einstellungen → Geräte & Dienste → Integration hinzufügen → EnBW mobility+** anmelden.
-
-Die Aufnahme in den HACS-Standardkatalog ist ein eigener Prüfprozess. Bis zur Annahme ist das benutzerdefinierte Repository zu verwenden. In HASS-Versionen mit integriertem Marketplace dessen entsprechende Oberfläche verwenden.
-
-Alternativ `custom_components/enbw_mobilityplus` nach `/config/custom_components/` kopieren, neu starten und wie oben anmelden. Bei einer bestehenden manuellen Installation den Ordner vorher sichern. Der vorhandene Integrationseintrag muss erhalten bleiben, damit Sensor-IDs und Einstellungen erhalten bleiben. Keine Änderungen an `configuration.yaml` nötig.
 
 ## Enthaltene Werte
 
@@ -114,4 +131,4 @@ Zum Entfernen den Integrationseintrag unter Geräte & Dienste löschen, danach d
 
 ## Entwicklung
 
-[Mitwirken](CONTRIBUTING.md) · [HACS-Aufnahme](docs/HACS.md) · [MIT-Lizenz](LICENSE) · [Originaler Python-Client](docs/UPSTREAM_CLIENT.md)
+[Mitwirken](CONTRIBUTING.md) · [HACS-Status](docs/HACS.md) · [MIT-Lizenz](LICENSE) · [Originaler Python-Client](docs/UPSTREAM_CLIENT.md)

@@ -9,11 +9,40 @@
 
 An **unofficial, read-only** Home Assistant integration for your EnBW mobility+ charging history. See charging costs and energy, compare months, map visited stations and link historical charging points to existing live availability sensors.
 
-[Deutsche Anleitung](README.de.md) · [Installation](#installation) · [Releases](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/releases) · [Report a bug](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/issues/new/choose) · [HACS readiness](docs/HACS.md)
+[Deutsche Anleitung](README.de.md) · [Installation](#installation) · [Releases](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/releases) · [Report a bug](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/issues/new/choose) · [HACS catalog](docs/HACS.md)
 
 This project is a fork of [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), extended with a Home Assistant integration. The Python client source and its MIT attribution remain in this repository; the integration installs the published upstream client as a pinned dependency. Neither project is affiliated with or supported by EnBW. EnBW does not provide an official public account API; changes can break sign-in or data retrieval.
 
-## Color tariff card (unreleased / main)
+## Installation
+
+### HACS search (recommended)
+
+**EnBW mobility+ History is included in the HACS default catalog** since [9 November 2026](https://github.com/hacs/default/pull/13490). No custom repository is needed for normal installation.
+
+1. Open **HACS** and search for **EnBW mobility+ History** (or **EnBW**).
+2. Select the integration, download the latest release and restart Home Assistant.
+3. Open **Settings → Devices & services → Add integration → EnBW mobility+**.
+4. Enter your EnBW email and password.
+
+If the project is not listed yet, refresh the HACS catalog and try again; newly accepted entries may need time to appear in your local catalog. No `configuration.yaml` changes are required. On Home Assistant versions with a built-in Marketplace, use its equivalent search interface.
+
+### Custom repository (fallback)
+
+Only if the project still does not appear in your HACS search:
+
+1. Open **HACS → menu → Custom repositories**.
+2. Add `https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant` with category **Integration**.
+3. Search for **EnBW mobility+ History**, download it, restart Home Assistant and configure it as above.
+
+### Updating an existing installation
+
+Download the update in HACS, then restart Home Assistant. **Keep your existing integration entry** to preserve account settings and entity unique IDs. The color card is a separate frontend module: install/update it using the [card instructions](#color-tariff-card), update its resource URL version and reload the dashboard. HACS updates of the integration do not automatically install or update that card file.
+
+### Manual
+
+Copy `custom_components/enbw_mobilityplus/` to `/config/custom_components/enbw_mobilityplus/`, restart, then add the integration as above. Back up an existing folder before replacing it. HACS can take over an existing manual installation using the same domain; keep the existing config entry.
+
+## Color tariff card
 
 One card combines the decision, upgrade/downgrade, monthly price difference including base fees, both tariff costs, average usage and break-even volume. **Green = switch, blue = stay, amber = check data/prices**. Calculation details expand on demand. Configure your tariff and refresh history from the card. It follows HA light/dark mode and fits narrow dashboard columns.
 
@@ -21,10 +50,10 @@ One card combines the decision, upgrade/downgrade, monthly price difference incl
 
 ### Install the card
 
-Requires the integration from `main` with its **Tarifwechsel** decision sensor. These additions are not included in the existing `v0.3.0` tag.
+Requires integration **v0.4.0 or newer** with its **Tarifwechsel** decision sensor.
 
-1. [Download enbw-tariff-card.js](https://raw.githubusercontent.com/sluggyly1991/enbw-mobilityplus-homeassistant/main/www/enbw-tariff-card.js) to `/config/www/enbw-tariff-card.js` (create `www` if needed).
-2. Under **Settings → Dashboards → menu → Resources**, register `/local/enbw-tariff-card.js?v=20261106-1` as a **JavaScript module**, then reload the dashboard. Change the resource URL version when updating the card.
+1. [Download enbw-tariff-card.js](https://raw.githubusercontent.com/sluggyly1991/enbw-mobilityplus-homeassistant/v0.4.0/www/enbw-tariff-card.js) to `/config/www/enbw-tariff-card.js` (create `www` if needed).
+2. Under **Settings → Dashboards → menu → Resources**, register `/local/enbw-tariff-card.js?v=0.4.0` as a **JavaScript module**, then reload the dashboard. Change the resource URL version when updating the card.
 3. Use **Add card → Manual**, replacing both entity placeholders with IDs from your integration:
 
 ```yaml
@@ -53,11 +82,11 @@ data:
 
 [Full configuration example](examples/tariff-color-card.yaml) · [Native Markdown alternative](examples/tariff-card.yaml)
 
-## Tariff comparison (unreleased / main)
+## Tariff comparison
 
 Select your current **S, M or L tariff** in the integration options. Upgrade and downgrade comparisons expose a Yes/No decision (German Ja/Nein), best alternative, monthly net saving and break-even kWh. Use the [native dashboard card](examples/tariff-card.yaml), replacing its single sensor placeholder; no additional frontend dependency.
 
-The last three complete calendar months include zero-use months and only German EnBW sessions. Both monthly fees are included. Prices are configurable and are not detected from your account; defaults are regular prices verified on 2026-11-06. After 31 days without price confirmation, or with insufficient history, the decision is **Prüfen** (check). Coverage requires an older session and a non-truncated response; a silently shortened provider archive cannot be detected. No contract is changed. [Calculation details](examples/README.md#tariff-comparison-card-unreleased--main).
+The last three complete calendar months include zero-use months and only German EnBW sessions. Both monthly fees are included. Prices are configurable and are not detected from your account; defaults are regular prices verified on 2026-11-06. After 31 days without price confirmation, or with insufficient history, the decision is **Prüfen** (check). Coverage requires an older session and a non-truncated response; a silently shortened provider archive cannot be detected. No contract is changed. [Calculation details](examples/README.md#tariff-comparison-card).
 
 ## Features
 
@@ -77,23 +106,6 @@ The last three complete calendar months include zero-use months and only German 
 - Internet access for the EnBW API and installation of `enbw-mobilityplus-client==1.0.0`.
 - A compatible availability integration is **optional**. History and station totals work independently.
 
-## Installation
-
-### HACS custom repository
-
-Until the repository is accepted into the HACS default catalog, add it as a custom repository:
-
-1. Open **HACS → menu → Custom repositories**.
-2. Add `https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant` with category **Integration**.
-3. Download **EnBW mobility+ History** and restart Home Assistant.
-4. Open **Settings → Devices & services → Add integration → EnBW mobility+**.
-5. Enter your EnBW email and password.
-
-No `configuration.yaml` changes are required. On Home Assistant versions with a built-in Marketplace, use its equivalent custom repository interface.
-
-### Manual
-
-Copy `custom_components/enbw_mobilityplus/` to `/config/custom_components/enbw_mobilityplus/`, restart, then add the integration as above. Back up an existing folder before replacing it. HACS can take over an existing manual installation using the same domain; **keep the existing config entry** to preserve entity unique IDs.
 
 ## Entities and dashboard
 
@@ -166,7 +178,7 @@ To remove: delete the integration under Devices & services, then uninstall throu
 
 ## Development and contribution
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). HACS validation, hassfest, linting and automated offline tests run in GitHub Actions. CI never needs real EnBW credentials. Releases are created only after checks pass. Being installable through HACS does **not** mean the HACS team has accepted this project into the default catalog.
+See [CONTRIBUTING.md](CONTRIBUTING.md). HACS validation, hassfest, linting and automated offline tests run in GitHub Actions. CI never needs real EnBW credentials. Releases are created only after checks pass. The project was accepted into the HACS default catalog in [PR #13490](https://github.com/hacs/default/pull/13490). This remains an unofficial EnBW integration.
 
 ## Credits and license
 

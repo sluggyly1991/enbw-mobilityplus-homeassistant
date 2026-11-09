@@ -2,9 +2,9 @@
 
 These examples use placeholder entity IDs. Replace every ID with one from your account device before adding a card through the dashboard editor's YAML mode. Do not paste them into `configuration.yaml`. Existing areas and language settings may produce different entity IDs.
 
-## Color tariff card (unreleased / main)
+## Color tariff card
 
-See the [README installation steps](../README.md#color-tariff-card-unreleased--main). After registering the local module, use [tariff-color-card.yaml](tariff-color-card.yaml) and replace its two entity IDs. All information and actions are contained in this one card. Its decision uses color **and text/icons**: green switch, blue stay, amber check. The plain Markdown alternative remains available below.
+See the [README installation steps](../README.md#color-tariff-card). After registering the local module, use [tariff-color-card.yaml](tariff-color-card.yaml) and replace its two entity IDs. All information and actions are contained in this one card. Its decision uses color **and text/icons**: green switch, blue stay, amber check. The plain Markdown alternative remains available below.
 
 ## Monthly overview
 
@@ -83,7 +83,7 @@ content: |
 
 The public availability integration's own station-total and individual-point entities can be placed beside this map/history. Their refresh interval remains independent of the history integration.
 
-## Tariff comparison card (unreleased / main)
+## Tariff comparison card
 
 Copy [tariff-card.yaml](tariff-card.yaml) into **Add card → Manual** and replace its single placeholder with your integration's **Tarifwechsel** sensor. It is a native Markdown card; no frontend resource, JavaScript card or extra HACS download is needed. It shows **Wechseln: Ja/Nein**, upgrade/downgrade direction, best alternative, monthly costs, net saving and break-even volume.
 

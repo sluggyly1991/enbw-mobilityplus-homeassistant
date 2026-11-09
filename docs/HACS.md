@@ -23,12 +23,10 @@ The standalone Python client source and history are preserved from the upstream 
 2. Enable GitHub Actions in the fork if GitHub has disabled them initially.
 3. Wait for HACS and hassfest to pass with **no ignored or disabled checks**; also require all test matrix jobs to pass.
 4. Publish a full GitHub release, not just a tag, for that exact commit after successful checks.
-5. Verify custom-repository installation using that release.
+5. Verify that the release is available to the catalog entry; retain custom-repository installation as a fallback.
 
-## Admission to the default catalog
+## Default catalog status
 
-Only the owner or a major contributor can submit. Fork `hacs/default`, create a fresh branch from its current `master`, and add `sluggyly1991/enbw-mobilityplus-homeassistant` alphabetically to the `integration` JSON array.
+Accepted on **9 November 2026**: [hacs/default#13490](https://github.com/hacs/default/pull/13490), merged by `frenck`. Users can find **EnBW mobility+ History** through HACS search. Both READMEs lead with this route and retain custom repository installation only as a fallback, following the [review feedback](https://github.com/hacs/default/pull/13490#pullrequestreview-5825617592).
 
-Complete the current PR template truthfully, linking the release and the exact successful HACS/hassfest workflow runs. Submit from the personal account with maintainer edits enabled. Do not request individual reviews. The HACS team controls review and acceptance; there is no guaranteed date.
-
-Repository preparation, a successful HACS validation, and availability as a custom repository **do not by themselves mean catalog acceptance**. Never claim that acceptance before the catalog PR has been merged.
+Catalog inclusion does not mean official EnBW support. The integration remains an unofficial client of a non-public account API.
