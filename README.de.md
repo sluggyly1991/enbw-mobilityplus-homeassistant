@@ -10,6 +10,11 @@ Dies ist ein Fork von [mawiak/enbw-mobilityplus-client](https://github.com/mawia
 
 ## Installation mit HACS
 
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=sluggyly1991&repository=enbw-mobilityplus-homeassistant&category=integration)
+[![Add integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=enbw_mobilityplus)
+
+Zuerst die Integration über HACS herunterladen und Home Assistant neu starten; danach mit **Add integration** dein Konto einrichten.
+
 **EnBW mobility+ History ist seit [9. November 2026 im HACS-Standardkatalog](https://github.com/hacs/default/pull/13490).** Für die normale Installation ist kein benutzerdefiniertes Repository nötig.
 
 Voraussetzung: Home Assistant **2026.3.0 oder neuer**, Internetzugang und ein unterstützter EnBW-Login.

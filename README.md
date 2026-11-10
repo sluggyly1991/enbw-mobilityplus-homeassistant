@@ -15,6 +15,11 @@ This project is a fork of [mawiak/enbw-mobilityplus-client](https://github.com/m
 
 ## Installation
 
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=sluggyly1991&repository=enbw-mobilityplus-homeassistant&category=integration)
+[![Add integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=enbw_mobilityplus)
+
+First download the integration through HACS and restart Home Assistant; then use **Add integration** to set up your account.
+
 ### HACS search (recommended)
 
 **EnBW mobility+ History is included in the HACS default catalog** since [9 November 2026](https://github.com/hacs/default/pull/13490). No custom repository is needed for normal installation.
