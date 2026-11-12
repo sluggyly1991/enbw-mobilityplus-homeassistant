@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4.1 — 2026-11-12
+
+### Fixed
+
+- Update the pinned dependency to [enbw-mobilityplus-client 1.0.1](https://github.com/mawiak/enbw-mobilityplus-client/releases/tag/v1.0.1). The upstream login flow now declines the optional Auth0 passkey enrollment prompt and continues signing in, including the local enrollment variant. This fixes logins interrupted by that prompt; it does not add passkey or MFA authentication.
+
+### Documentation
+
+- Add official My Home Assistant buttons for opening the HACS repository and starting integration setup to both READMEs.
+- Update the documented client dependency version.
+
+### Upgrade notes
+
+- Update through HACS and restart Home Assistant to load client 1.0.1. Keep the existing integration entry; no reconfiguration or card update is required. If authentication previously failed at the enrollment prompt, retry sign-in after updating.
+
 ## 0.4.0 — 2026-11-09
 
 ### Added

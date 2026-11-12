@@ -6,7 +6,7 @@ Eine **inoffizielle, nur lesende** Integration für Ladehistorie, Kosten, Monats
 
 [Repository](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant) · [Releases](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/releases) · [Fehler melden](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/issues/new/choose) · [English documentation](README.md)
 
-Dies ist ein Fork von [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), ergänzt um eine HASS-Integration. Der ursprüngliche Client und dessen MIT-Lizenz bleiben erhalten. Die Integration nutzt die veröffentlichte Version 1.0.0 als Abhängigkeit. Keine Verbindung zu EnBW; keine offizielle API oder Unterstützung durch EnBW.
+Dies ist ein Fork von [mawiak/enbw-mobilityplus-client](https://github.com/mawiak/enbw-mobilityplus-client), ergänzt um eine HASS-Integration. Der ursprüngliche Client und dessen MIT-Lizenz bleiben erhalten. Die Integration nutzt die veröffentlichte Version 1.0.1 als Abhängigkeit. Keine Verbindung zu EnBW; keine offizielle API oder Unterstützung durch EnBW.
 
 ## Installation mit HACS
 

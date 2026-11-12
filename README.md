@@ -108,7 +108,7 @@ The last three complete calendar months include zero-use months and only German 
 
 - Home Assistant **2026.3.0 or newer**. Version 0.2.0 was tested on 2026.9.1; CI validates the release separately.
 - An EnBW mobility+ account with a login supported by the upstream client. CAPTCHA, MFA and third-party sign-in are not implemented.
-- Internet access for the EnBW API and installation of `enbw-mobilityplus-client==1.0.0`.
+- Internet access for the EnBW API and installation of `enbw-mobilityplus-client==1.0.1`.
 - A compatible availability integration is **optional**. History and station totals work independently.
 
 
