@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.util import dt as dt_util
 
 from .analytics import summarize
-from .api import AuthenticationError
+from .api import APIError, AuthenticationError
 from .const import DOMAIN
 from .tariff import compare_tariffs
 
@@ -38,8 +38,10 @@ class EnBWCoordinator(DataUpdateCoordinator):
         async with self.lock:
             try:
                 return await self.hass.async_add_executor_job(self.account.history, limit)
-            except AuthenticationError:
-                raise ConfigEntryAuthFailed("EnBW-Anmeldung erneuern") from None
+            except AuthenticationError as error:
+                raise ConfigEntryAuthFailed(str(error)) from None
+            except APIError as error:
+                raise UpdateFailed(str(error)) from None
             except Exception:
                 # Upstream exception messages may contain response bodies or auth URLs.
                 raise UpdateFailed(

@@ -75,8 +75,9 @@ class HistoryTest(unittest.TestCase):
             sys.modules,
             {"enbw_mobilityplus_client": SimpleNamespace(EnBWMobilityPlusClient=lambda: client)},
         ):
-            with self.assertRaises(api.AuthenticationError):
+            with self.assertRaises(api.APIError) as raised:
                 account.login()
+            self.assertNotIsInstance(raised.exception, api.AuthenticationError)
         self.assertTrue(client.closed)
         self.assertIsNone(account.client)
 
@@ -124,7 +125,78 @@ class HistoryTest(unittest.TestCase):
         client.get_charging_history.side_effect = ValueError("Failed to get charging history: 503")
         account = api.Account("email", "password")
         account.client = client
-        with self.assertRaises(ValueError):
+        with self.assertRaises(api.APIError):
+            account.history(1)
+        client.refresh_access_token.assert_not_called()
+
+    def test_login_failure_categories(self):
+        cases = [
+            ("Login failed: 401", api.AuthenticationError, "Zugangsdaten"),
+            ("Login failed: 403", api.APIError, "Zugriffsschutz"),
+            ("Login failed: 429", api.APIError, "begrenzt"),
+            ("Authorization failed: 503", api.APIError, "vorübergehend"),
+            (
+                "Could not extract authorization code. Status: 200, URL: SECRET",
+                api.APIError,
+                "Login-Ablauf",
+            ),
+            (
+                'Token refresh failed: 400 - {"error":"invalid_grant"}',
+                api.AuthenticationError,
+                "Anmeldung erneuern",
+            ),
+            (
+                'Token refresh failed: 400 - {"error":"invalid_request"}',
+                api.APIError,
+                "API/Login-Ablauf",
+            ),
+            ("Response body: 401 SECRET", api.APIError, "Datenformat"),
+        ]
+        for message, expected, text in cases:
+            with self.subTest(message=message):
+                error = api.classify_error(ValueError(message), "Anmeldung")
+                self.assertIs(type(error), expected)
+                self.assertIn(text, str(error))
+                self.assertNotIn("SECRET", str(error))
+
+    def test_network_failure_categories(self):
+        self.assertIn(
+            "Zeitüberschreitung", str(api.classify_error(TimeoutError("SECRET"), "Anmeldung"))
+        )
+        self.assertIn("Verbindung", str(api.classify_error(OSError("SECRET"), "Anmeldung")))
+
+    def test_logs_never_include_upstream_details(self):
+        account = api.Account("PRIVATE_EMAIL", "PRIVATE_PASSWORD")
+        operation = Mock(
+            side_effect=ValueError("Login failed: 403 - PRIVATE_TOKEN https://private")
+        )
+        with self.assertLogs("api", level="WARNING") as logs:
+            with self.assertRaises(api.APIError) as raised:
+                account._call(operation, "Anmeldung")
+        self.assertIn("HTTP 403", logs.output[0])
+        self.assertNotIn("PRIVATE", str(logs.output))
+        self.assertNotIn("https://", str(logs.output))
+        self.assertTrue(raised.exception.__suppress_context__)
+
+    def test_transient_refresh_failure_does_not_require_reauth(self):
+        client = Mock(refresh_token="refresh")
+        client.get_charging_history.side_effect = ValueError("Failed to get charging history: 401")
+        client.refresh_access_token.side_effect = ValueError("Token refresh failed: 503 - PRIVATE")
+        account = api.Account("email", "password")
+        account.client = client
+        with self.assertRaises(api.APIError) as raised:
+            account.history(1)
+        self.assertNotIsInstance(raised.exception, api.AuthenticationError)
+        self.assertIn("503", str(raised.exception))
+
+    def test_history_body_cannot_trigger_refresh(self):
+        client = Mock(refresh_token="refresh")
+        client.get_charging_history.side_effect = ValueError(
+            "Failed to get charging history: 503 - error: 401"
+        )
+        account = api.Account("email", "password")
+        account.client = client
+        with self.assertRaises(api.APIError):
             account.history(1)
         client.refresh_access_token.assert_not_called()
 
