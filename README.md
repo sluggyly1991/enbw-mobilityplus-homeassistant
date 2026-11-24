@@ -172,6 +172,8 @@ See [SECURITY.md](SECURITY.md) for responsible reporting.
 
 ## Troubleshooting
 
+- **Error diagnosis (v0.4.2+):** logs distinguish rejected authentication, HTTP 403 access restrictions, HTTP 429 rate limits, server errors, timeouts/network failures and unexpected login/API responses. An unexpected response is not automatically treated as a wrong password. HTTP 403 alone does not prove invalid credentials.
+- **Reporting a login failure:** update and restart Home Assistant, reproduce once, then include the integration/HA versions and the safe warning from `custom_components.enbw_mobilityplus.api` under **Settings → System → Logs**. Do not enable or share raw HTTP/client debug logs. These categories aid diagnosis; they do not guarantee a fix for every login failure.
 - **Cannot sign in:** verify the account in the official app; CAPTCHA/MFA may require changes in the upstream client.
 - **Reauthentication requested:** follow the Home Assistant reauthentication flow. Never delete a working account entry merely to refresh a token.
 - **Unavailable after a connection error:** check connectivity and try the refresh button after the API recovers.

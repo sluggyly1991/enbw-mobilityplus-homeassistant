@@ -132,6 +132,12 @@ Anmeldedaten werden in der HASS-Konfiguration gespeichert und können in Backups
 
 Der Client unterstützt möglicherweise kein CAPTCHA, MFA oder Drittanbieter-Login. Er wählt derzeit das erste Kontoprofil; eine Profilwahl ist nicht implementiert. API-Änderungen können die Integration unterbrechen. Bei Anmeldeproblemen die von HASS angebotene erneute Authentifizierung nutzen. Für Sicherheitsmeldungen siehe [SECURITY.md](SECURITY.md).
 
+## Fehlerdiagnose ab v0.4.2
+
+Die Logs unterscheiden abgelehnte Anmeldungen, Zugriffsschutz (HTTP 403), Anfragelimits (HTTP 429), Serverfehler, Zeitüberschreitungen/Verbindungsprobleme und unerwartete Login-/API-Antworten. Eine unerwartete Antwort wird nicht automatisch als falsches Passwort gewertet. HTTP 403 allein beweist keine falschen Zugangsdaten.
+
+Bei Login-Problemen zunächst aktualisieren und HASS neu starten, dann den Fehler einmal reproduzieren. Unter **Einstellungen → System → Protokolle** die sichere Warnmeldung von `custom_components.enbw_mobilityplus.api` zusammen mit HASS- und Integrationsversion angeben. Keine unbereinigten HTTP-/Client-Debuglogs aktivieren oder veröffentlichen. Die neuen Meldungen verbessern die Diagnose; sie sind keine Zusage, dass jede Login-Ursache behoben ist. Den bestehenden Integrationseintrag behalten.
+
 Zum Entfernen den Integrationseintrag unter Geräte & Dienste löschen, danach die Integration in HACS deinstallieren beziehungsweise ihren Ordner entfernen und neu starten. Das EnBW-Konto wird dadurch nicht gelöscht.
 
 ## Entwicklung

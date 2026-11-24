@@ -1,12 +1,17 @@
 # Changelog
 
-## Unreleased
+## 0.4.2 — 2026-11-24
 
 ### Fixed
 
 - Distinguish explicit authentication rejection from temporary service/network failures and unexpected login responses. Generic client `ValueError` failures no longer automatically trigger reauthentication.
 - Preserve temporary failures during token refresh as retryable update failures. Match HTTP status only at known upstream error prefixes, not inside response bodies.
 - Log safe, descriptive German failure categories and HTTP status where available, without upstream response bodies, authentication URLs, credentials or tokens. Surface the same safe messages in update errors.
+
+### Upgrade notes
+
+- Update through HACS and restart Home Assistant; keep the existing integration entry. No card update is needed. The client remains pinned to 1.0.1.
+- This release improves error handling and diagnosis; it does not establish or fix the underlying cause of the login reports in [#1](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/issues/1) and [#2](https://github.com/sluggyly1991/enbw-mobilityplus-homeassistant/issues/2).
 
 ## 0.4.1 — 2026-11-12
 
